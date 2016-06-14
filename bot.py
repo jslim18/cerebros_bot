@@ -609,7 +609,7 @@ def download_db(bot, update):
         return
     bot.sendChatAction(chat_id, action=ChatAction.UPLOAD_DOCUMENT)
     bot.sendDocument(chat_id, document=open(DB_NAME, 'rb'),
-                     filename='trusted.sqlite',
+                     filename='trustworthy.sqlite',
                      reply_to_message_id=update.message.message_id)
 
 
