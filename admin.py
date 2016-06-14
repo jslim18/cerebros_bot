@@ -9,7 +9,7 @@ class Admin(db.Entity):
     first_name = Required(str)
     last_name = Optional(str)
     username = Optional(str)
-    added = Set("Scammer")
+    added = Set("Believer")
     super_admin = Optional(bool, default=False)
     created = Required(datetime.datetime, default=datetime.datetime.now)
 
