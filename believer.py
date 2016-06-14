@@ -5,7 +5,7 @@ from pony.orm import *
 from database import db
 
 
-class Scammer(db.Entity):
+class Believer(db.Entity):
     phone_nr = Optional(str)
     account_nr = Optional(str)
     bank_name = Optional(str)
