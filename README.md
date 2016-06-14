@@ -1,5 +1,5 @@
 # scambot
-A Telegram bot to track scamming activity
+A Telegram bot to track activity of trustworthy bitcoin traders
 
 To run the bot yourself, you will need: 
 - Python (tested with 3.4)
