@@ -15,11 +15,11 @@ from start_bot import start_bot
 from database import db
 
 from admin import Admin
-from scammer import Scammer
+from believer import Believer
 from reporter import Reporter
 
 # States the bot can have (maintained per chat id)
-MAIN, ADD_SCAMMER, REMOVE_SCAMMER, ADD_ADMIN, REMOVE_ADMIN, PHONE_NR,\
+MAIN, ADD_BELIEVER, REMOVE_BELIEVER, ADD_ADMIN, REMOVE_ADMIN, PHONE_NR,\
     ACCOUNT_NR, BANK_NAME, REMARK, SEARCH, ADD_INFO, EDIT, ATTACHMENT =\
     range(13)
 
@@ -67,17 +67,17 @@ botan = False
 if BOTAN_TOKEN:
     botan = Botan(BOTAN_TOKEN)
 
-help_text = "This bot keeps a database of known scammers by recording their " \
-            "phone number, bank account number and name.\n\n" \
+help_text = "This bot keeps a database of known trustworthy bitcoin traders by recording " \
+            "thier phone number, bank account number and name.\n\n" \
             "<b>Usage:</b>\n" \
             "/search - Search the database for reports\n\n" \
             "Donations via BTC are welcome: 1EPu17mBM2zw4LcupURgwsAuFeKQrTa1jy"
 
 admin_help_text = "\n\n" \
                   "<b>Admin commands:</b>\n" \
-                  "/new - Add a new scammer report\n" \
-                  "/edit - Edit an existing report\n" \
-                  "/delete - Delete a scammer report\n" \
+                  "/new - Add a new trustworthy bitcoin trader\n" \
+                  "/edit - Edit an existing bitcoin trader\n" \
+                  "/delete - Delete a trustworthy bitcoin trader\n" \
                   "/cancel - Cancel current operation"
 
 super_admin_help_text = "\n\n" \
@@ -140,7 +140,7 @@ def message_handler(bot, update):
     reply_markup = ReplyKeyboardHide(selective=True)
 
     with db_session:
-        if chat_state is ADD_SCAMMER and forward_from:
+        if chat_state is ADD_BELIEVER and forward_from:
             reporter = get_reporter(forward_from)
             if not reporter:
                 reporter = Reporter(id=forward_from.id,
@@ -149,15 +149,15 @@ def message_handler(bot, update):
                                     username=forward_from.username)
                 track(update, 'new_reporter')
 
-            scammer = Scammer(added_by=get_admin(update.message.from_user))
-            scammer.reported_by.add(reporter)
+            believer = Believer(added_by=get_admin(update.message.from_user))
+            believer.reported_by.add(reporter)
             track(update, 'new_report')
             db.commit()
 
-            reply = "Created report <b>#%d</b>! Please enter scammer " \
-                    "information:" % scammer.id
+            reply = "Created report <b>#%d</b>! Please enter trustworthy bitcoin trader " \
+                    "information:" % believer.id
             reply_markup = CAT_KEYBOARD
-            state[chat_id] = [ADD_INFO, scammer.id]
+            state[chat_id] = [ADD_INFO, believer.id]
 
         elif chat_state is EDIT:
             try:
@@ -166,27 +166,27 @@ def message_handler(bot, update):
                 reply = "Not a valid report number. Try again or use " \
                         "/cancel to abort."
             else:
-                scammer = Scammer.get(id=report_id)
+                believer = Believer.get(id=report_id)
 
-                if scammer:
+                if believer:
                     reply = "%s\n\nPlease enter new " \
-                            "scammer information:" % str(scammer)
+                            "trustworthy bitcoin trader information:" % str(believer)
                     reply_markup = CAT_KEYBOARD
-                    state[chat_id] = [ADD_INFO, scammer.id]
+                    state[chat_id] = [ADD_INFO, believer.id]
                 else:
                     reply = "Could not find report number. Try again or " \
                             "use /cancel to abort."
 
-        elif chat_state is REMOVE_SCAMMER:
+        elif chat_state is REMOVE_BELIEVER:
             try:
                 report_id = int(update.message.text.replace('#', ''))
             except ValueError:
                 reply = "Not a valid report number. Try again or use " \
                         "/cancel to abort."
             else:
-                scammer = Scammer.get(id=report_id)
-                if scammer:
-                    scammer.delete()
+                believer = Believer.get(id=report_id)
+                if believer:
+                    believer.delete()
                     reply = "Deleted report!"
                     del state[chat_id]
                 else:
@@ -229,25 +229,25 @@ def message_handler(bot, update):
             else:
                 text = update.message.text.replace('%', '')
 
-                scammers = select(
-                    s for s in Scammer if
+                believers = select(
+                    s for s in Believer if
                     text in s.phone_nr or
                     text in s.account_nr or
                     text in s.bank_name or
                     text in s.remark
                 ).order_by(
-                    desc(Scammer.created)
+                    desc(Believer.created)
                 )[0:1]
 
-                if scammers:
-                    scammer = scammers[0]
-                    reply = str(scammer)
+                if believers:
+                    believer = believers[0]
+                    reply = str(believer)
                     reporter = get_reporter(update.message.from_user)
 
                     kb = search_keyboard(offset=0,
                                          show_download=True,
                                          disabled_attachments=[],
-                                         confirmed=reporter in scammer.reported_by
+                                         confirmed=reporter in believer.reported_by
                                          if reporter
                                          else False,
                                          query=text)
@@ -275,28 +275,28 @@ def message_handler(bot, update):
                 reply_markup = ForceReply(selective=True)
 
             elif chat_state[0] is ADD_INFO:
-                    scammer = Scammer.get(id=chat_state[1])
+                    believer = Believer.get(id=chat_state[1])
                     text = update.message.text
                     category = chat_state[2]
 
                     if category is PHONE_NR and text:
-                        scammer.phone_nr = text
+                        believer.phone_nr = text
 
                     elif category is ACCOUNT_NR and text:
-                        scammer.account_nr = text
+                        believer.account_nr = text
 
                     elif category is BANK_NAME and text:
-                        scammer.bank_name = text
+                        believer.bank_name = text
 
                     elif category is REMARK and text:
-                        scammer.remark = text
+                        believer.remark = text
 
                     elif category is ATTACHMENT:
                         if update.message.photo:
-                            scammer.attached_file =\
+                            believer.attached_file =\
                                 'photo:' + update.message.photo[-1].file_id
                         elif update.message.document:
-                            scammer.attached_file =\
+                            believer.attached_file =\
                                 'document:' + update.message.document.file_id
 
                     chat_state.pop()  # one menu back
@@ -316,26 +316,26 @@ def track(update, event_name):
         botan.track(message=update.message, event_name=event_name)
 
 
-def add_scammer(bot, update):
+def add_believer(bot, update):
     global state
     with db_session:
         admin = get_admin(update.message.from_user)
     if not admin:
         return
-    state[update.message.chat_id] = ADD_SCAMMER
+    state[update.message.chat_id] = ADD_BELIEVER
     bot.sendMessage(update.message.chat_id,
                     text="Forward me a message of the user that is reporting "
-                         "the scammer or use /cancel to cancel",
+                         "the trustworthy bitcoin trader or use /cancel to cancel",
                     reply_to_message_id=update.message.message_id)
 
 
-def remove_scammer(bot, update):
+def remove_believer(bot, update):
     global state
     with db_session:
         admin = get_admin(update.message.from_user)
     if not admin:
         return
-    state[update.message.chat_id] = REMOVE_SCAMMER
+    state[update.message.chat_id] = REMOVE_BELIEVER
     bot.sendMessage(update.message.chat_id,
                     text="Please send the Report # of the report you wish "
                          "to remove or send /cancel to cancel",
@@ -343,7 +343,7 @@ def remove_scammer(bot, update):
                     reply_to_message_id=update.message.message_id)
 
 
-def edit_scammer(bot, update):
+def edit_believer(bot, update):
     global state
     with db_session:
         admin = get_admin(update.message.from_user)
@@ -446,18 +446,18 @@ def callback_query(bot, update):
         new_offset = offset
 
     try:
-        scammers = select(
-            s for s in Scammer if
+        believers = select(
+            s for s in Believer if
             query in s.phone_nr or
             query in s.account_nr or
             query in s.bank_name or
             query in s.remark
         ).order_by(
-            desc(Scammer.created)
+            desc(Believer.created)
         )[new_offset:new_offset + 1]
 
     except TypeError:
-        scammers = None
+        believers = None
 
     else:
         offset = new_offset
@@ -465,25 +465,25 @@ def callback_query(bot, update):
     reply = None
 
     if action in ('old', 'new'):
-        if scammers:
-            scammer = scammers[0]
-            reply = str(scammer)
+        if believers:
+            believer = believers[0]
+            reply = str(believer)
 
-            if not scammer.attached_file:
+            if not believer.attached_file:
                 disabled_attachments.add(offset)
 
-            confirmed = reporter in scammer.reported_by if reporter else False
+            confirmed = reporter in believer.reported_by if reporter else False
 
         else:
             bot.answerCallbackQuery(callback_query_id=cb.id, text="No more results")
             return
 
     elif action == 'confirm':
-        if not scammers:
+        if not believers:
             bot.answerCallbackQuery(callback_query_id=cb.id, text="Not found, please search again")
             return
 
-        scammer = scammers[0]
+        believer = believers[0]
         if not confirmed:
             if not reporter:
                 reporter = Reporter(id=cb.from_user.id,
@@ -492,21 +492,21 @@ def callback_query(bot, update):
                                     username=cb.from_user.username)
                 track(update, 'new_reporter')
 
-            scammer.reported_by.add(reporter)
+            believer.reported_by.add(reporter)
             bot.answerCallbackQuery(callback_query_id=cb.id, text="You confirmed this report.")
         else:
-            scammer.reported_by.remove(reporter)
+            believer.reported_by.remove(reporter)
             bot.answerCallbackQuery(callback_query_id=cb.id, text="You removed your confirmation.")
 
         confirmed = not confirmed
-        reply = str(scammer)
+        reply = str(believer)
 
     elif action == 'att':
-        if not scammers:
+        if not believers:
             bot.answerCallbackQuery(callback_query_id=cb.id, text="Not found, please search again")
             return
 
-        kind, _, file_id = scammers[0].attached_file.partition(':')
+        kind, _, file_id = believers[0].attached_file.partition(':')
 
         if kind == 'photo':
             bot.sendPhoto(chat_id, photo=file_id,
@@ -521,13 +521,13 @@ def callback_query(bot, update):
         bot.sendChatAction(chat_id, action=ChatAction.UPLOAD_DOCUMENT)
 
         with db_session:
-            scammers = select(s for s in Scammer if
+            believers = select(s for s in Believer if
                               query in s.phone_nr or
                               query in s.account_nr or
                               query in s.bank_name or
                               query in s.remark).limit(100)
 
-            content = "\r\n\r\n".join(str(s) for s in scammers)
+            content = "\r\n\r\n".join(str(s) for s in believers)
 
         file = BytesIO(content.encode())
         show_download = False
@@ -609,7 +609,7 @@ def download_db(bot, update):
         return
     bot.sendChatAction(chat_id, action=ChatAction.UPLOAD_DOCUMENT)
     bot.sendDocument(chat_id, document=open(DB_NAME, 'rb'),
-                     filename='scammers.sqlite',
+                     filename='trusted.sqlite',
                      reply_to_message_id=update.message.message_id)
 
 
@@ -618,9 +618,9 @@ dp.addHandler(CommandHandler('start', help))
 dp.addHandler(CommandHandler('help', help))
 dp.addHandler(CommandHandler('add_admin', add_admin))
 dp.addHandler(CommandHandler('remove_admin', remove_admin))
-dp.addHandler(CommandHandler('new', add_scammer))
-dp.addHandler(CommandHandler('edit', edit_scammer))
-dp.addHandler(CommandHandler('delete', remove_scammer))
+dp.addHandler(CommandHandler('new', add_believer))
+dp.addHandler(CommandHandler('edit', edit_believer))
+dp.addHandler(CommandHandler('delete', remove_believer))
 dp.addHandler(CommandHandler('search', search))
 dp.addHandler(CallbackQueryHandler(callback_query))
 dp.addHandler(CommandHandler('download_database', download_db))
