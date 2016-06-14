@@ -1,4 +1,4 @@
-# scambot
+# cerebros_bot
 A Telegram bot to track activity of trustworthy bitcoin traders
 
 To run the bot yourself, you will need: 
