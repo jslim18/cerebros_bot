@@ -614,18 +614,18 @@ def download_db(bot, update):
 
 
 # Add all handlers to the dispatcher and run the bot
-dp.addHandler(CommandHandler('start', help))
-dp.addHandler(CommandHandler('help', help))
-dp.addHandler(CommandHandler('add_admin', add_admin))
-dp.addHandler(CommandHandler('remove_admin', remove_admin))
-dp.addHandler(CommandHandler('new', add_believer))
-dp.addHandler(CommandHandler('edit', edit_believer))
-dp.addHandler(CommandHandler('delete', remove_believer))
-dp.addHandler(CommandHandler('search', search))
-dp.addHandler(CallbackQueryHandler(callback_query))
-dp.addHandler(CommandHandler('download_database', download_db))
-dp.addHandler(CommandHandler('cancel', cancel))
-dp.addHandler(MessageHandler([Filters.text, Filters.photo, Filters.document],
+dp.add_handler(CommandHandler('start', help))
+dp.add_handler(CommandHandler('help', help))
+dp.add_handler(CommandHandler('add_admin', add_admin))
+dp.add_handler(CommandHandler('remove_admin', remove_admin))
+dp.add_handler(CommandHandler('new', add_believer))
+dp.add_handler(CommandHandler('edit', edit_believer))
+dp.add_handler(CommandHandler('delete', remove_believer))
+dp.add_handler(CommandHandler('search', search))
+dp.add_handler(CallbackQueryHandler(callback_query))
+dp.add_handler(CommandHandler('download_database', download_db))
+dp.add_handler(CommandHandler('cancel', cancel))
+dp.add_handler(MessageHandler([Filters.text, Filters.photo, Filters.document],
                              message_handler))
 dp.addErrorHandler(error)
 
