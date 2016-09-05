@@ -38,7 +38,7 @@ class Believer(db.Entity):
              "Telegram ID: {account_nr}\n"
              "Name: {bank_name}\n"
              "DNA: {remark}\n"
-             "Reported by: {reported_by}\n").format(
+             "Voted by: {reported_by}\n").format(
                 **{k: escape_html(str(v)) for (k, v) in params.items()}
             )
 
