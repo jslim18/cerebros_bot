@@ -33,7 +33,7 @@ class Believer(db.Entity):
             'added_by': self.added_by
         }
 
-        s = ("<b>Verified Member: #{id}</b>\n"
+        s = ("<b>Verified Member: C#{id}</b>\n"
              "<b>Cellular:</b> {phone_nr}\n"
              "Telegram ID: {account_nr}\n"
              "Name: {bank_name}\n"
