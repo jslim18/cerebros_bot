@@ -23,8 +23,8 @@ MAIN, ADD_BELIEVER, REMOVE_BELIEVER, ADD_ADMIN, REMOVE_ADMIN, PHONE_NR,\
     ACCOUNT_NR, BANK_NAME, REMARK, SEARCH, ADD_INFO, EDIT, ATTACHMENT =\
     range(13)
 
-options = {PHONE_NR: "Phone number", ACCOUNT_NR: "Account number",
-           BANK_NAME: "Name of bank account owner", REMARK: "Admin remark",
+options = {PHONE_NR: "Phone number", ACCOUNT_NR: "Telegram ID",
+           BANK_NAME: "Name of bank account owner", REMARK: "DNA",
            ATTACHMENT: "Attachment"}
 
 # Enable reverse lookup
