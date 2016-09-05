@@ -568,35 +568,35 @@ def search_keyboard(offset, show_download, disabled_attachments, confirmed, quer
 
     kb = [[
         InlineKeyboardButton(
-            text=Emoji.BLACK_LEFT_POINTING_TRIANGLE + ' Newer',
-            callback_data='act=new%' + data
+            text='<< ' + Emoji.BLACK_RIGHT_POINTING_TRIANGLE,
+            callback_data='act=old%' + data
         ),
         InlineKeyboardButton(
-            text=(Emoji.THUMBS_UP_SIGN + ' Confirm') if not confirmed else
-            (Emoji.THUMBS_DOWN_SIGN + ' Unconfirm'),
+            text=(Emoji.THUMBS_UP_SIGN) if not confirmed else
+            ('Unliked'),
             callback_data='act=confirm%' + data
         ),
         InlineKeyboardButton(
-            text='Older ' + Emoji.BLACK_RIGHT_POINTING_TRIANGLE,
-            callback_data='act=old%' + data
+            text=Emoji.BLACK_LEFT_POINTING_TRIANGLE + ' >>',
+            callback_data='act=new%' + data
         ),
     ], list()]
 
-    if offset not in disabled_attachments:
-        kb[1].append(
-            InlineKeyboardButton(
-                text=Emoji.FLOPPY_DISK + ' Attachment',
-                callback_data='act=att%' + data
-            )
-        )
+#    if offset not in disabled_attachments:
+#        kb[1].append(
+#            InlineKeyboardButton(
+#                text=Emoji.FLOPPY_DISK + ' Attachment',
+#                callback_data='act=att%' + data
+#            )
+#        )
 
-    if show_download:
-        kb[1].append(
-            InlineKeyboardButton(
-                text=Emoji.BLACK_DOWN_POINTING_DOUBLE_TRIANGLE + ' Download all',
-                callback_data='act=dl%' + data
-            )
-        )
+#    if show_download:
+#        kb[1].append(
+#            InlineKeyboardButton(
+#                text=Emoji.BLACK_DOWN_POINTING_DOUBLE_TRIANGLE + ' Download all',
+#                callback_data='act=dl%' + data
+#            )
+#        )
     return kb
 
 
