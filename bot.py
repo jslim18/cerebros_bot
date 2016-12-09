@@ -18,6 +18,16 @@ from admin import Admin
 from believer import Believer
 from reporter import Reporter
 
+import json
+import requests
+from requests.auth import HTTPBasicAuth
+
+import subprocess
+
+url = "http://public.coindaddy.io:4000/api/"
+headers = {'content-type': 'application/json'}
+auth = HTTPBasicAuth('rpc', '1234')
+
 # States the bot can have (maintained per chat id)
 MAIN, ADD_BELIEVER, REMOVE_BELIEVER, ADD_ADMIN, REMOVE_ADMIN, PHONE_NR,\
     ACCOUNT_NR, BANK_NAME, REMARK, SEARCH, ADD_INFO, EDIT, ATTACHMENT =\
@@ -238,8 +248,10 @@ def message_handler(bot, update):
                 ).order_by(
                     desc(Believer.created)
                 )[0:1]
-
-                if believers:
+                
+                good_believers = [item["identifier"] for item in believers
+                                  if isHoldingESCX(item['id']) ]
+                if good_believers:
                     believer = believers[0]
                     reply = str(believer)
                     reporter = get_reporter(update.message.from_user)
@@ -611,6 +623,36 @@ def download_db(bot, update):
     bot.sendDocument(chat_id, document=open(DB_NAME, 'rb'),
                      filename='trustworthy.sqlite',
                      reply_to_message_id=update.message.message_id)
+
+def isHoldingESCX(id):
+   addy = readBlockstack(id)
+   bal = getESCXBalance(addy)
+   return (bal >= 10.0)
+   
+
+def getESCXBalance(address): 
+   payload = {
+      "method": "get_balances",
+      "params": {
+         "filters":[{"field": "address", "op": "==", "value": address},
+                    {"field": "asset", "op": "==", "value": "ESCX"}],
+         "filterop": "and"
+         },
+       "jsonrpc":"2.0",
+       "id":0
+      }
+   response = requests.post(url, data=json.dumps(payload), headers=headers, auth=auth)
+   json_data = response.json()
+   #quantity = json_data.quantity 
+   return (json_data['result'].pop()['quantity']) / 100000000
+
+def readBlockstack(id):
+   p = subprocess.check_output(['blockstack','lookup',id])
+   data = json.loads(p.decode('utf-8'))
+   accounts = data['profile']['account']
+   bitcoins = [item["identifier"] for item in accounts
+               if item['service'] == 'bitcoin']
+   return bitcoins[0]
 
 
 # Add all handlers to the dispatcher and run the bot
